@@ -1,5 +1,5 @@
 // Service worker: aplikacja otwiera się bez internetu (mapa i nowe wyszukiwania wymagają sieci).
-const CACHE = 'tablice-v1';
+const CACHE = 'tablice-v2';
 const SHELL = [
   './', './index.html', './app.css', './app.js', './manifest.webmanifest', './icon.svg',
   './icon-180.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png',

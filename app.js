@@ -167,14 +167,44 @@ async function overpass(q, onRetry) {
 }
 
 function categorize(t) {
-  if (t.amenity === 'notice_board') return 'notice';
+  if (t.amenity === 'notice_board' || t.board_type === 'notice') return 'notice'; // w Polsce tablice ogłoszeń mają board_type=notice
   if (t.advertising === 'column') return 'column';
   if (t.tourism === 'information') return 'info';
   if (t.advertising) return 'ad';
   return null;
 }
 
+/* Gotowe kafelki z tablicami całej Polski (data/), odświeżane co tydzień przez GitHub Actions. */
+let metaPromise = null;
+function getMeta() {
+  metaPromise ??= fetch('data/meta.json').then((r) => { if (!r.ok) throw new Error('meta ' + r.status); return r.json(); })
+    .then((m) => { showDataDate(m.updated); return m; })
+    .catch((e) => { metaPromise = null; throw e; });
+  return metaPromise;
+}
+function showDataDate(iso) {
+  const d = new Date(iso);
+  if (!isNaN(d)) $('data-date').textContent = `, stan z ${d.toLocaleDateString('pl-PL')}`;
+}
+async function boardsFromTiles(place) {
+  const meta = await getMeta();
+  const [s, w, n, e] = place.bbox;
+  const keys = [];
+  for (let la = Math.floor(s); la <= Math.floor(n); la++)
+    for (let lo = Math.floor(w); lo <= Math.floor(e); lo++)
+      if (meta.tiles.includes(`${la}_${lo}`)) keys.push(`${la}_${lo}`);
+  const tiles = await Promise.all(keys.map((k) => fetch(`data/${k}.json`).then((r) => { if (!r.ok) throw new Error('tile ' + r.status); return r.json(); })));
+  return tiles.flat()
+    .map(([id, lat, lon, cat, tags]) => ({ id, osm: `${{ n: 'node', w: 'way', r: 'relation' }[id[0]]}/${id.slice(1)}`, cat, lat, lon, tags }))
+    .filter((b) => inPlace(b.lat, b.lon, place));
+}
+
 async function fetchBoards(place, onRetry) {
+  try { return await boardsFromTiles(place); } catch { /* brak gotowych danych — pytamy Overpass na żywo */ }
+  return fetchBoardsLive(place, onRetry);
+}
+
+async function fetchBoardsLive(place, onRetry) {
   const [s, w, n, e] = place.bbox.map((v) => v.toFixed(6));
   const bb = `(${s},${w},${n},${e})`;
   const q = `[out:json][timeout:25];(
