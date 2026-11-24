@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tablice Ogłoszeń</title>
+  <meta name="description" content="Wszystkie tablice i słupy ogłoszeniowe w wybranym mieście lub wsi, na mapie i na liście.">
+  <meta name="theme-color" content="#1E5A44">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tablice">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="18" rx="2" fill="currentColor"/><rect x="7" y="23" width="3" height="7" fill="currentColor"/><rect x="22" y="23" width="3" height="7" fill="currentColor"/><circle cx="11" cy="10" r="2" fill="var(--pin)"/><rect x="14" y="9" width="11" height="2" rx="1" fill="var(--paper)"/><rect x="7" y="14" width="18" height="2" rx="1" fill="var(--paper)"/><rect x="7" y="18" width="12" height="2" rx="1" fill="var(--paper)"/></svg>
+      <h1>Tablice Ogłoszeń</h1>
+    </div>
+    <form class="search" id="search-form" autocomplete="off" role="search">
+      <label class="sr" for="q">Miasto lub wieś</label>
+      <input id="q" name="q" type="search" placeholder="Wpisz miasto lub wieś, np. Wadowice" enterkeyhint="search">
+      <button type="submit" class="btn btn-primary">Szukaj</button>
+      <button type="button" class="btn btn-icon" id="near-me" title="W pobliżu mnie" aria-label="Tablice w pobliżu mnie">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <ul class="suggest" id="suggest" hidden></ul>
+    </form>
+  </header>
+
+  <main class="layout">
+    <section class="panel" id="panel" aria-label="Lista tablic">
+      <button class="panel-grip" id="panel-grip" type="button" aria-label="Rozwiń lub zwiń listę"><span></span></button>
+      <div class="place" id="place">
+        <p class="eyebrow" id="place-kind">Wybierz miejscowość</p>
+        <h2 id="place-name">Gdzie szukamy tablic?</h2>
+        <p class="place-sub" id="place-sub">Wpisz nazwę miasta lub wsi albo stuknij celownik, żeby zobaczyć tablice wokół siebie.</p>
+      </div>
+
+      <div class="filters" id="filters" role="group" aria-label="Rodzaje tablic"></div>
+
+      <div class="status" id="status" hidden></div>
+
+      <ol class="list" id="list"></ol>
+
+      <div class="foot">
+        <button type="button" class="btn btn-ghost" id="add-mode">+ Dodaj własną tablicę</button>
+        <p class="note">Dane: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Tablice, których brakuje, możesz dodać u siebie (zostaną tylko w tym telefonie) albo zgłosić do mapy OSM.</p>
+      </div>
+    </section>
+
+    <div class="map-wrap">
+      <div id="map" aria-label="Mapa tablic"></div>
+      <div class="add-hint" id="add-hint" hidden>Stuknij w mapę tam, gdzie stoi tablica <button type="button" class="btn btn-small" id="add-cancel">Anuluj</button></div>
+    </div>
+  </main>
+
+  <dialog id="add-dialog">
+    <form method="dialog" id="add-form">
+      <h3>Nowa tablica</h3>
+      <label for="add-name">Nazwa</label>
+      <input id="add-name" required maxlength="80" placeholder="np. Tablica przy sklepie">
+      <label for="add-note">Notatka</label>
+      <textarea id="add-note" rows="3" maxlength="300" placeholder="np. ogłoszenia sołtysa, nekrologi"></textarea>
+      <div class="dialog-actions">
+        <button value="cancel" type="button" class="btn btn-ghost" id="add-dialog-cancel">Anuluj</button>
+        <button value="ok" type="submit" class="btn btn-primary">Zapisz</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
